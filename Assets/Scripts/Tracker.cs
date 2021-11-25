@@ -1,35 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Tracker : MonoBehaviour
+public class Tracker
 {
-    private Vector3 m_PreviousVelocity;
+    private Transform m_Transform;
     private Vector3 m_CurrentVelocity;
-    private Vector3 m_PreviousPosition;
+    private Vector3 m_WorldPreviousPosition;
+    private float m_AngleOffset;
 
-    public void InitTracker()
+    public Vector3 velocity => m_CurrentVelocity;
+    public float angleOffset => m_AngleOffset;
+
+    public Tracker(Transform transform)
     {
-        m_PreviousPosition = transform.position;
-        m_PreviousVelocity = Vector3.zero;
+        m_Transform = transform;
+        m_WorldPreviousPosition = transform.position;
     }
 
-    public void UpdateTracker()
+    public void Update()
     {
-        Vector3 currentPosition = transform.position;
-        m_PreviousVelocity = m_CurrentVelocity;
-        m_CurrentVelocity = (currentPosition - m_PreviousPosition) / Time.deltaTime;
-        m_PreviousPosition = currentPosition;
+        Vector3 worldCurrentPosition = m_Transform.position;
+        Vector3 worldCurrentVelocity = ((worldCurrentPosition - m_WorldPreviousPosition)) / Time.deltaTime;
+        m_CurrentVelocity = m_Transform.InverseTransformVector(worldCurrentVelocity);
+        m_AngleOffset = Vector3.SignedAngle(m_CurrentVelocity, Vector3.forward, Vector3.up);
+        m_WorldPreviousPosition = worldCurrentPosition;
     }
 
-    // TODO: Use C# properties
-    public Vector3 GetCurrentVelocity()
-    {
-        return m_CurrentVelocity;
-    }
-
-    public Vector3 GetPreviousVelocity()
-    {
-        return m_PreviousVelocity;
-    }
 }
